@@ -182,7 +182,12 @@ export default function Workers() {
             {/* Emergency Contact */}
             <Card className="bg-destructive/5 border-destructive/20">
               <CardContent className="p-4">
-                <Button variant="destructive" className="w-full" size="lg">
+                <Button 
+                  variant="destructive" 
+                  className="w-full" 
+                  size="lg"
+                  onClick={() => window.location.href = "tel:911"}
+                >
                   <Phone className="w-4 h-4 mr-2" />
                   Emergency Support
                 </Button>
