@@ -154,7 +154,7 @@ export default function Index() {
             Ready to Transform Your Community?
           </h2>
           <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-            Join thousands of communities already making a difference with SmartSan
+            Join thousands of communities already making a difference with EcoCycle
           </p>
           
           <div className="flex flex-wrap gap-4 justify-center mb-12">
@@ -189,10 +189,10 @@ export default function Index() {
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-primary">
                 <Leaf className="w-6 h-6 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold">SmartSan</span>
+              <span className="text-xl font-bold">EcoCycle</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2025 SmartSan. Building sustainable communities worldwide.
+              © 2025 EcoCycle. Building sustainable communities worldwide.
             </p>
           </div>
         </div>
