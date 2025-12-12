@@ -76,6 +76,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to EcoCycle API 🚀' });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
