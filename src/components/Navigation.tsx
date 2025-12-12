@@ -1,15 +1,18 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  LayoutDashboard, 
-  MapPin, 
-  Users, 
-  BarChart3, 
+import {
+  LayoutDashboard,
+  MapPin,
+  Users,
+  BarChart3,
   Menu,
-  Leaf
+  Leaf,
+  LogOut,
+  LogIn
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from "@/context/AuthContext";
 
 const navItems = [
   { path: "/", label: "Home", icon: Leaf },
@@ -21,7 +24,8 @@ const navItems = [
 
 export const Navigation = () => {
   const location = useLocation();
-  
+  const { user, logout, isAuthenticated } = useAuth();
+
   const NavLinks = () => (
     <>
       {navItems.map((item) => {
@@ -42,6 +46,27 @@ export const Navigation = () => {
           </Link>
         );
       })}
+
+      {isAuthenticated ? (
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          onClick={logout}
+        >
+          <LogOut className="w-4 h-4" />
+          Sign Out
+        </Button>
+      ) : (
+        <Link to="/login">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-2 text-primary hover:bg-primary/10 hover:text-primary"
+          >
+            <LogIn className="w-4 h-4" />
+            Sign In
+          </Button>
+        </Link>
+      )}
     </>
   );
 
@@ -54,7 +79,7 @@ export const Navigation = () => {
               <Leaf className="w-6 h-6 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-             
+              EcoCycle
             </span>
           </Link>
 
@@ -76,6 +101,31 @@ export const Navigation = () => {
                 </Link>
               );
             })}
+
+            <div className="w-px h-6 bg-border mx-2" />
+
+            {isAuthenticated ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                onClick={logout}
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </Button>
+            ) : (
+              <Link to="/login">
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Navigation */}

@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,17 +9,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Camera, Send, Award, X, Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CommunityReport() {
   const { toast } = useToast();
-  const [points, setPoints] = useState(245);
-  const [level, setLevel] = useState(3);
-  
+  const { user, isAuthenticated } = useAuth();
+
   // Form state
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,6 +51,7 @@ export default function CommunityReport() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
+        // Format as GeoJSON Point string or just lat,long
         setLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
         setIsLoadingLocation(false);
         toast({
@@ -60,9 +61,13 @@ export default function CommunityReport() {
       },
       (error) => {
         setIsLoadingLocation(false);
+        let errorMsg = "Unable to retrieve your location";
+        if (error.code === error.PERMISSION_DENIED) {
+          errorMsg = "Location permission denied. Please enable it in your browser settings.";
+        }
         toast({
           title: "Location error",
-          description: error.message,
+          description: errorMsg,
           variant: "destructive",
         });
       }
@@ -75,7 +80,7 @@ export default function CommunityReport() {
       const newImages = Array.from(files).filter(
         (file) => file.size <= 10 * 1024 * 1024 // 10MB limit
       );
-      setImages((prev) => [...prev, ...newImages].slice(0, 5)); // Max 5 images
+      setImages((prev) => [...prev, ...newImages].slice(0, 3)); // Max 3 images
     }
   };
 
@@ -85,7 +90,7 @@ export default function CommunityReport() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!category || !location || !description) {
       toast({
         title: "Missing information",
@@ -96,40 +101,86 @@ export default function CommunityReport() {
     }
 
     setIsSubmitting(true);
-    
-    // Simulate API call - replace with actual backend call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    const newPoints = points + 10;
-    setPoints(newPoints);
-    
-    toast({
-      title: "Report Submitted! 🎉",
-      description: `You earned 10 points! Total: ${newPoints} points`,
-    });
 
-    // Reset form
-    setCategory("");
-    setLocation("");
-    setDescription("");
-    setPriority("");
-    setImages([]);
-    setIsSubmitting(false);
+    try {
+      const formData = new FormData();
+      formData.append("type", category);
+
+      // Parse location "lat, long" -> GeoJSON
+      const [lat, lng] = location.split(',').map(s => parseFloat(s.trim()));
+      const locationJson = JSON.stringify({
+        type: "Point",
+        coordinates: [lng, lat] // GeoJSON is [lng, lat]
+      });
+      formData.append("location", locationJson);
+
+      formData.append("description", description);
+
+      // Append images
+      images.forEach((image) => {
+        formData.append("images", image);
+      });
+
+      // Add user ID if authenticated, otherwise it's anonymous (handled by backend optionalAuth)
+      const token = localStorage.getItem('token');
+      const headers: HeadersInit = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch('/api/reports', {
+        method: 'POST',
+        headers: headers, // Do NOT set Content-Type for FormData, browser does it automatically with boundary
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to submit report');
+      }
+
+      toast({
+        title: "Report Submitted! 🎉",
+        description: isAuthenticated
+          ? "Thank you for your contribution! You've earned points."
+          : "Your anonymous report has been submitted successfully.",
+      });
+
+      // Reset form
+      setCategory("");
+      setLocation("");
+      setDescription("");
+      setImages([]);
+    } catch (error: any) {
+      toast({
+        title: "Submission Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Report an Issue</h1>
-          <p className="text-muted-foreground">Help keep your community clean and earn rewards</p>
+          <p className="text-muted-foreground">help keep your community clean</p>
+          {!isAuthenticated && (
+            <p className="text-sm text-yellow-600 mt-2 bg-yellow-50 p-2 rounded inline-block border border-yellow-200">
+              You are reporting anonymously. <a href="/login" className="underline font-bold">Sign in</a> to track issues and earn rewards.
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Report Form */}
-          <Card className="lg:col-span-2">
+          <Card className={isAuthenticated ? "lg:col-span-2" : "lg:col-span-3"}>
             <CardHeader>
               <CardTitle>Submit a Report</CardTitle>
             </CardHeader>
@@ -156,19 +207,20 @@ export default function CommunityReport() {
                   <div className="flex gap-2">
                     <div className="relative flex-1">
                       <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                      <Input 
-                        id="location" 
-                        placeholder="Enter location or use GPS" 
+                      <Input
+                        id="location"
+                        placeholder="lat, long (or click map pin)"
                         className="pl-10"
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
                       />
                     </div>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
+                    <Button
+                      type="button"
+                      variant="outline"
                       onClick={handleGetLocation}
                       disabled={isLoadingLocation}
+                      title="Get Current Location"
                     >
                       {isLoadingLocation ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -177,13 +229,14 @@ export default function CommunityReport() {
                       )}
                     </Button>
                   </div>
+                  <p className="text-xs text-muted-foreground">Click the pin button to automatically detect your location.</p>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="description">Description *</Label>
-                  <Textarea 
-                    id="description" 
-                    placeholder="Describe the issue in detail..." 
+                  <Textarea
+                    id="description"
+                    placeholder="Describe the issue in detail..."
                     rows={4}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -191,21 +244,7 @@ export default function CommunityReport() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="priority">Priority Level</Label>
-                  <Select value={priority} onValueChange={setPriority}>
-                    <SelectTrigger id="priority">
-                      <SelectValue placeholder="Select priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low - Can wait</SelectItem>
-                      <SelectItem value="medium">Medium - Address soon</SelectItem>
-                      <SelectItem value="high">High - Urgent</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Add Photos (Optional - Max 5)</Label>
+                  <Label>Add Photos (Optional - Max 3)</Label>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -214,7 +253,7 @@ export default function CommunityReport() {
                     className="hidden"
                     onChange={handleImageUpload}
                   />
-                  <div 
+                  <div
                     className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
                   >
@@ -222,7 +261,7 @@ export default function CommunityReport() {
                     <p className="text-sm text-muted-foreground">Click to upload or drag and drop</p>
                     <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB each</p>
                   </div>
-                  
+
                   {images.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-3">
                       {images.map((image, index) => (
@@ -245,11 +284,11 @@ export default function CommunityReport() {
                   )}
                 </div>
 
-                <Button 
-                  type="submit" 
-                  variant="hero" 
-                  size="lg" 
-                  className="w-full"
+                <Button
+                  type="submit"
+                  variant="default" // changed variant to standard
+                  size="lg"
+                  className="w-full bg-primary hover:bg-primary/90"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -263,76 +302,41 @@ export default function CommunityReport() {
             </CardContent>
           </Card>
 
-          {/* Gamification Panel */}
-          <div className="space-y-6">
-            <Card className="bg-gradient-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="w-5 h-5 text-warning" />
-                  Your Impact
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="text-center py-4">
-                  <div className="text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
-                    {points}
+          {/* Gamification Panel - Only show if logged in */}
+          {isAuthenticated && (
+            <div className="space-y-6">
+              <Card className="bg-gradient-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="w-5 h-5 text-warning" />
+                    Your Impact
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="text-center py-4">
+                    <div className="text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
+                      245
+                    </div>
+                    <p className="text-muted-foreground">Total Points</p>
                   </div>
-                  <p className="text-muted-foreground">Total Points</p>
-                </div>
 
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Level {level}</span>
-                    <span className="text-sm text-muted-foreground">{points}/300</span>
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">Level 3</span>
+                      <span className="text-sm text-muted-foreground">245/300</span>
+                    </div>
+                    <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-primary transition-all duration-500"
+                        style={{ width: `82%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">55 points to Level 4</p>
                   </div>
-                  <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-primary transition-all duration-500" 
-                      style={{ width: `${(points / 300) * 100}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">55 points to Level {level + 1}</p>
-                </div>
-
-                <div className="space-y-3 pt-4 border-t border-border">
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-success/10">
-                    <span className="text-sm">Reports Submitted</span>
-                    <span className="font-bold text-success">24</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/10">
-                    <span className="text-sm">Issues Resolved</span>
-                    <span className="font-bold text-secondary">18</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-warning/10">
-                    <span className="text-sm">Current Streak</span>
-                    <span className="font-bold text-warning">7 days 🔥</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Recent Achievements</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                  <div className="text-2xl">🏆</div>
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">Community Hero</p>
-                    <p className="text-xs text-muted-foreground">10 reports in a week</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                  <div className="text-2xl">⭐</div>
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">Early Reporter</p>
-                    <p className="text-xs text-muted-foreground">First to report an issue</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </main>
     </div>
