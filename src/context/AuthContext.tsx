@@ -49,10 +49,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     setUser(data.data.user);
                     setIsAuthenticated(true);
                 } else {
+                    console.log(`Auth check failed: ${response.status}`);
                     localStorage.removeItem('token');
                 }
             } catch (error) {
-                console.error('Auth check failed:', error);
+                console.error('Auth check error:', error);
                 localStorage.removeItem('token');
             } finally {
                 setIsLoading(false);
@@ -69,6 +70,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(credentials),
             });
+
+            // Handle non-JSON responses (like 404 HTML from proxies)
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                const text = await response.text();
+                console.error('Login Error (Non-JSON):', text);
+                throw new Error(`Server Error: ${response.status} ${response.statusText}`);
+            }
 
             const data = await response.json();
 
@@ -94,6 +103,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData),
             });
+
+            // Handle non-JSON responses
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                const text = await response.text();
+                console.error('Register Error (Non-JSON):', text);
+                throw new Error(`Server Error: ${response.status} ${response.statusText}`);
+            }
 
             const data = await response.json();
 
