@@ -3,12 +3,16 @@
     "compilerOptions": {
         "rootDir": "./src"
     },
+    "include": [
+        "src/**/*"
+    ],
     "exclude": [
         "node_modules",
         "dist",
         "**/*.test.ts",
         "src/test/**/*",
         "src/__tests__/**/*",
-        "src/scripts/**/*"
+        "src/scripts/**/*",
+        "jest.config.ts"
     ]
 }
