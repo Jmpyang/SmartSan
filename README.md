@@ -2,6 +2,22 @@
 
 EcoCycle is a scalable, community-centered sanitation management system that leverages mobile technology, IoT integration, and AI-powered analytics to improve public sanitation services. It enables real-time issue reporting, predictive maintenance, and data-driven decision-making for sanitation workers, administrators, and the community.
 
+### Environment Variables
+Create a `.env` file in the root directory (or `.env.local` for local development overrides):
+
+**Frontend (`VITE_` prefix required)**
+```env
+VITE_API_URL=http://localhost:5000 # Development (handled by proxy, leave empty or set explicitly)
+# VITE_API_URL=https://your-backend-url.com # Production
+```
+
+**Backend**
+```env
+MONGODB_URI=mongodb+srv://...
+JWT_SECRET=your_secret
+PORT=5000
+```
+
 ## 🚀 Features
 
 ### Frontend (React + TypeScript + Vite)

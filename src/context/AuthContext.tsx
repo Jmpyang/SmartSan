@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { API_BASE_URL } from '@/lib/api';
 
 interface User {
     _id: string;
@@ -37,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     return;
                 }
 
-                const response = await fetch('/api/auth/me', {
+                const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -63,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = async (credentials: any) => {
         try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(credentials),
@@ -88,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const register = async (userData: any) => {
         try {
-            const response = await fetch('/api/auth/register', {
+            const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData),
@@ -113,7 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = async () => {
         try {
-            await fetch('/api/auth/logout', { method: 'POST' });
+            await fetch(`${API_BASE_URL}/api/auth/logout`, { method: 'POST' });
         } catch (error) {
             console.error('Logout error:', error);
         } finally {

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Camera, Send, Award, X, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function CommunityReport() {
   const { toast } = useToast();
@@ -128,7 +129,7 @@ export default function CommunityReport() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch('/api/reports', {
+      const response = await fetch(`${API_BASE_URL}/api/reports`, {
         method: 'POST',
         headers: headers, // Do NOT set Content-Type for FormData, browser does it automatically with boundary
         body: formData,
