@@ -52,7 +52,7 @@ PORT=5000
 ### 1. Clone the repository
 ```bash
 git clone <repository-url>
-cd SmartSan
+cd EcoCycle
 ```
 
 ### 2. Install Frontend Dependencies
@@ -165,7 +165,7 @@ See `backend/README.md` for complete API documentation.
 ## 🗂️ Project Structure
 
 ```
-SmartSan/
+EcoCycle/
 ├── backend/                # Node.js/Express backend
 │   ├── src/
 │   │   ├── config/        # Configuration files

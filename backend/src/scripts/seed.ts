@@ -28,37 +28,40 @@ const seedDatabase = async () => {
         console.log('✅ Data cleared');
 
         console.log('👥 Creating users...');
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash('password123', salt);
 
+        // We pass plain text passwords because the User model pre-save hook handles hashing
         const users = await User.create([
             {
                 name: 'Admin User',
                 email: 'admin@example.com',
-                password: hashedPassword,
+                password: 'password123',
                 role: 'admin',
                 phone: '1234567890',
+                isVerified: true,
             },
             {
                 name: 'Worker One',
                 email: 'worker1@example.com',
-                password: hashedPassword,
+                password: 'password123',
                 role: 'worker',
                 phone: '1234567891',
+                isVerified: true,
             },
             {
                 name: 'Worker Two',
                 email: 'worker2@example.com',
-                password: hashedPassword,
+                password: 'password123',
                 role: 'worker',
                 phone: '1234567892',
+                isVerified: true,
             },
             {
                 name: 'John Citizen',
                 email: 'citizen@example.com',
-                password: hashedPassword,
+                password: 'password123',
                 role: 'citizen',
                 phone: '1234567893',
+                isVerified: true,
             },
         ]);
 

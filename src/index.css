@@ -17,10 +17,10 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 210 15% 20%;
 
-    /* Eco-friendly green for primary actions */
-    --primary: 142 76% 36%;
+    /* Eco-friendly green for primary actions - Softened */
+    --primary: 142 50% 40%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 142 76% 45%;
+    --primary-glow: 142 50% 50%;
 
     /* Clean blue for secondary actions */
     --secondary: 200 95% 45%;

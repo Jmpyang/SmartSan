@@ -1,17 +1,19 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  Leaf, 
-  Users, 
-  BarChart3, 
-  Smartphone, 
-  Globe, 
+import {
+  Leaf,
+  Users,
+  BarChart3,
+  Smartphone,
+  Globe,
   Award,
   ArrowRight,
   CheckCircle2
 } from "lucide-react";
 import heroImage from "@/assets/hero-sanitation.jpg";
+import { ThemeToggle } from "@/components/ThemeToggle";
+
 export default function Index() {
   const features = [
     {
@@ -54,11 +56,15 @@ export default function Index() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image with Gradient Overlay */}
-        <div 
+        <div
           className="absolute inset-0 z-0"
           style={{
             backgroundImage: `url(${heroImage})`,
@@ -76,13 +82,13 @@ export default function Index() {
               <Leaf className="w-4 h-4 text-primary-foreground" />
               <span className="text-sm font-medium text-primary-foreground">Sustainable Sanitation Management</span>
             </div>
-            
+
             <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white drop-shadow-lg">
               Building Cleaner Communities Together
             </h1>
-            
+
             <p className="text-xl md:text-2xl mb-12 text-white/90 max-w-3xl mx-auto drop-shadow">
-              Empowering communities, workers, and administrators with intelligent sanitation management. 
+              Empowering communities, workers, and administrators with intelligent sanitation management.
               Real-time monitoring, AI-driven insights, and collaborative problem-solving.
             </p>
 
@@ -156,7 +162,7 @@ export default function Index() {
           <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
             Join thousands of communities already making a difference with EcoCycle
           </p>
-          
+
           <div className="flex flex-wrap gap-4 justify-center mb-12">
             <div className="flex items-center gap-2 text-primary-foreground">
               <CheckCircle2 className="w-5 h-5" />
@@ -182,7 +188,7 @@ export default function Index() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 bg-background border-t border-border">
+      <footer className="py-6 bg-background border-t border-border">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center gap-2 mb-4 md:mb-0">

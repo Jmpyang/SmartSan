@@ -33,6 +33,8 @@ const navItems = [
   { path: "/analytics", label: "Analytics", icon: BarChart3, roles: ['admin'] },
 ];
 
+import { ThemeToggle } from "./ThemeToggle";
+
 export const Navigation = () => {
   const location = useLocation();
   const { user, logout, isAuthenticated } = useAuth();
@@ -138,6 +140,8 @@ export const Navigation = () => {
 
             <div className="w-px h-6 bg-border mx-2" />
 
+            <ThemeToggle />
+
             {isAuthenticated ? (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -189,6 +193,10 @@ export const Navigation = () => {
             <SheetContent side="right" className="w-64">
               <div className="flex flex-col gap-2 mt-8">
                 <NavLinks />
+                <div className="flex items-center justify-between px-2 py-2">
+                  <span className="text-sm font-medium">Theme</span>
+                  <ThemeToggle />
+                </div>
               </div>
             </SheetContent>
           </Sheet>

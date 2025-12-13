@@ -1,15 +1,17 @@
 import { Navigation } from "@/components/Navigation";
 import { MetricCard } from "@/components/MetricCard";
 import { StatusBadge } from "@/components/StatusBadge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Trash2, 
-  Users, 
-  MapPin, 
+import {
+  Trash2,
+  Users,
+  MapPin,
   TrendingUp,
   AlertTriangle,
   CheckCircle2,
-  Clock
+  Clock,
+  Gift
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -24,7 +26,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
@@ -116,7 +118,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
@@ -128,7 +130,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
@@ -149,6 +151,34 @@ export default function Dashboard() {
                 <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-primary" style={{ width: '85%' }} />
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Featured Rewards */}
+          <Card className="mt-6 md:col-span-2 lg:col-span-3">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gift className="w-5 h-5 text-primary" />
+                Featured Rewards
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { title: "Coffee on Us", cost: "500 pts", desc: "Get a free coffee at local cafes" },
+                  { title: "Bus Pass", cost: "1000 pts", desc: "One day unlimited travel pass" },
+                  { title: "Community Badge", cost: "2000 pts", desc: "Digital badge for your profile" },
+                ].map((reward, i) => (
+                  <div key={i} className="p-4 rounded-lg bg-muted/50 border border-border flex flex-col gap-2">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-semibold">{reward.title}</h4>
+                      <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">{reward.cost}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{reward.desc}</p>
+                    <Button variant="outline" size="sm" className="mt-2 w-full">Redeem</Button>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

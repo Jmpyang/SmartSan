@@ -45,7 +45,7 @@ const limiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: config.nodeEnv === 'test' ? 1000 : 5, // 5 attempts normally, 1000 for tests
+  max: config.nodeEnv === 'test' ? 1000 : 100, // Increased for dev/demo usage
   message: 'Too many login attempts, please try again later',
 });
 
