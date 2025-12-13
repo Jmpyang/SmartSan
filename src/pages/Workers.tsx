@@ -2,37 +2,68 @@ import { Navigation } from "@/components/Navigation";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  CheckCircle2, 
-  Clock, 
+import {
+  CheckCircle2,
+  Clock,
   MapPin,
   Navigation as NavigationIcon,
-  Phone
+  Phone,
+  Bot
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Workers() {
+  const { toast } = useToast();
+
+  const handleNavigate = (location: string) => {
+    // Open Google Maps
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`, '_blank');
+  };
+
+  const handleStartTask = (id: number) => {
+    toast({
+      title: "Task Started",
+      description: `Task #${id} has been marked as in-progress.`,
+    });
+  };
+
+  const handleAIOptimize = () => {
+    toast({
+      title: "AI Optimization",
+      description: "Calculating optimal route based on traffic and priority...",
+    });
+    // Simulate AI delay
+    setTimeout(() => {
+      toast({
+        title: "Route Optimized! 🤖",
+        description: "Route updated. 15 minutes saved.",
+        variant: "default" // success
+      });
+    }, 2000);
+  };
+
   const tasks = [
-    { 
-      id: 1, 
-      location: "Main Street & 5th Ave", 
+    {
+      id: 1,
+      location: "Main Street & 5th Ave",
       type: "Waste Collection",
       priority: "high",
       status: "pending",
       distance: "0.5 km",
       estimatedTime: "10 min"
     },
-    { 
-      id: 2, 
-      location: "Park Avenue", 
+    {
+      id: 2,
+      location: "Park Avenue",
       type: "Bin Maintenance",
       priority: "medium",
       status: "active",
       distance: "1.2 km",
       estimatedTime: "15 min"
     },
-    { 
-      id: 3, 
-      location: "Central Market", 
+    {
+      id: 3,
+      location: "Central Market",
       type: "Emergency Cleanup",
       priority: "high",
       status: "alert",
@@ -50,11 +81,17 @@ export default function Workers() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Worker Dashboard</h1>
-          <p className="text-muted-foreground">Manage and track your daily tasks</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Worker Dashboard</h1>
+            <p className="text-muted-foreground">Manage and track your daily tasks</p>
+          </div>
+          <Button onClick={handleAIOptimize} className="bg-purple-600 hover:bg-purple-700">
+            <Bot className="w-4 h-4 mr-2" />
+            AI Optimize Route
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -89,7 +126,7 @@ export default function Workers() {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between pt-3 border-t border-border">
                     <div className="flex items-center gap-4 text-sm">
                       <span className="text-muted-foreground">
@@ -102,11 +139,11 @@ export default function Workers() {
                       </span>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={() => handleNavigate(task.location)}>
                         <NavigationIcon className="w-3 h-3 mr-1" />
                         Navigate
                       </Button>
-                      <Button variant="success" size="sm">
+                      <Button variant="success" size="sm" onClick={() => handleStartTask(task.id)}>
                         <CheckCircle2 className="w-3 h-3 mr-1" />
                         Start
                       </Button>
@@ -165,7 +202,7 @@ export default function Workers() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {completedToday.map((task) => (
-                  <div 
+                  <div
                     key={task.id}
                     className="p-3 rounded-lg bg-success/5 border border-success/20"
                   >
@@ -182,9 +219,9 @@ export default function Workers() {
             {/* Emergency Contact */}
             <Card className="bg-destructive/5 border-destructive/20">
               <CardContent className="p-4">
-                <Button 
-                  variant="destructive" 
-                  className="w-full" 
+                <Button
+                  variant="destructive"
+                  className="w-full"
                   size="lg"
                   onClick={() => window.location.href = "tel:911"}
                 >

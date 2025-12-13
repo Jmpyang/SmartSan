@@ -17,6 +17,7 @@ export default function CommunityReport() {
   const { user, isAuthenticated } = useAuth();
 
   // Form state
+  const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
@@ -26,16 +27,11 @@ export default function CommunityReport() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const categories = [
-    { value: "waste", label: "Overflowing Waste Bin" },
-    { value: "littering", label: "Illegal Littering" },
-    { value: "damage", label: "Damaged Infrastructure" },
-    { value: "blocked", label: "Blocked Drainage" },
-    { value: "hazard", label: "Health Hazard" },
-    { value: "smell", label: "Bad Odor/Smell" },
-    { value: "pest", label: "Pest Infestation" },
-    { value: "spill", label: "Chemical/Oil Spill" },
-    { value: "water", label: "Water Contamination" },
-    { value: "other", label: "Other" },
+    { value: "garbage_overflow", label: "Overflowing Waste Bin" },
+    { value: "illegal_dumping", label: "Illegal Littering/Dumping" },
+    { value: "broken_equipment", label: "Damaged Infrastructure" },
+    { value: "blocked_drain", label: "Blocked Drainage" },
+    { value: "other", label: "Other Hazard/Issue" },
   ];
 
   const handleGetLocation = () => {
@@ -92,10 +88,10 @@ export default function CommunityReport() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!category || !location || !description) {
+    if (!title || !category || !location || !description) {
       toast({
         title: "Missing information",
-        description: "Please fill in category, location, and description",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
       return;
@@ -105,7 +101,8 @@ export default function CommunityReport() {
 
     try {
       const formData = new FormData();
-      formData.append("type", category);
+      formData.append("title", title);
+      formData.append("category", category);
 
       // Parse location "lat, long" -> GeoJSON
       const [lat, lng] = location.split(',').map(s => parseFloat(s.trim()));
@@ -149,6 +146,7 @@ export default function CommunityReport() {
       });
 
       // Reset form
+      setTitle("");
       setCategory("");
       setLocation("");
       setDescription("");
@@ -187,6 +185,16 @@ export default function CommunityReport() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Report Title *</Label>
+                  <Input
+                    id="title"
+                    placeholder="Brief title of the issue"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="category">Issue Category *</Label>
                   <Select value={category} onValueChange={setCategory}>

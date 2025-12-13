@@ -3,8 +3,12 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
 
-const ProtectedRoute = () => {
-    const { isAuthenticated, isLoading } = useAuth();
+interface ProtectedRouteProps {
+    allowedRoles?: string[];
+}
+
+const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
+    const { user, isAuthenticated, isLoading } = useAuth();
     const location = useLocation();
 
     if (isLoading) {
@@ -16,9 +20,12 @@ const ProtectedRoute = () => {
     }
 
     if (!isAuthenticated) {
-        // Redirect to the login page, but save the current location they were testing to go to
-        // so we can send them there after they login (optional future enhancement, but good practice now)
         return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+        // Redirect to appropriate dashboard based on role or home
+        return <Navigate to="/" replace />;
     }
 
     return <Outlet />;

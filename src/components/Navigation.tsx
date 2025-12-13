@@ -12,14 +12,25 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/context/AuthContext";
 
 const navItems = [
   { path: "/", label: "Home", icon: Leaf },
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/report", label: "Report Issue", icon: MapPin },
-  { path: "/workers", label: "Workers", icon: Users },
-  { path: "/analytics", label: "Analytics", icon: BarChart3 },
+  { path: "/report", label: "Report Issue", icon: MapPin, roles: ['citizen', 'worker', 'admin'] },
+  { path: "/workers", label: "Workers", icon: Users, roles: ['worker', 'admin'] },
+  { path: "/analytics", label: "Analytics", icon: BarChart3, roles: ['admin'] },
 ];
 
 export const Navigation = () => {
@@ -29,6 +40,9 @@ export const Navigation = () => {
   const NavLinks = () => (
     <>
       {navItems.map((item) => {
+        // Hide if role doesn't match
+        if (item.roles && user && !item.roles.includes(user.role)) return null;
+
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
         return (
@@ -48,14 +62,31 @@ export const Navigation = () => {
       })}
 
       {isAuthenticated ? (
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
-          onClick={logout}
-        >
-          <LogOut className="w-4 h-4" />
-          Sign Out
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Sign Out?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to sign out of your account?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={logout} className="bg-destructive hover:bg-destructive/90">
+                Sign Out
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       ) : (
         <Link to="/login">
           <Button
@@ -86,6 +117,9 @@ export const Navigation = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-2">
             {navItems.map((item) => {
+              // Hide if role doesn't match
+              if (item.roles && user && !item.roles.includes(user.role)) return null;
+
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               return (
@@ -105,15 +139,32 @@ export const Navigation = () => {
             <div className="w-px h-6 bg-border mx-2" />
 
             {isAuthenticated ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                onClick={logout}
-              >
-                <LogOut className="w-4 h-4" />
-                Sign Out
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Sign Out?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to sign out?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={logout} className="bg-destructive hover:bg-destructive/90">
+                      Sign Out
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             ) : (
               <Link to="/login">
                 <Button
