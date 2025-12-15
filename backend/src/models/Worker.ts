@@ -14,6 +14,16 @@ const workerSchema = new Schema<IWorker>(
       required: true,
       trim: true,
     },
+    level: {
+      type: String,
+      enum: ['local', 'state', 'national'],
+      default: 'local',
+    },
+    jurisdiction: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     activeReports: {
       type: [String],
       ref: 'Report',

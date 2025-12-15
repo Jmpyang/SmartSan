@@ -44,5 +44,6 @@ router.post(
   authorize('admin'),
   asyncHandler(reportController.assignWorker)
 );
+router.get('/:id/recommendations', authenticate, asyncHandler(reportController.getRecommendedWorkers));
 
 export default router;

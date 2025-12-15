@@ -252,3 +252,39 @@ export const assignWorker = async (req: AuthRequest, res: Response): Promise<voi
     data: { report },
   });
 };
+
+export const getRecommendedWorkers = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+
+  const report = await Report.findById(id);
+  if (!report) {
+    throw new NotFoundError('Report not found');
+  }
+
+  // Logic to find workers based on report location/context
+  // For now, we match jurisdiction if it exists, or fall back to general available workers
+  // In a real app, this would use geospatial queries or strict jurisdiction mapping
+
+  // Mocking jurisdiction extraction from address or location
+  // For this MVP, we will fetch workers who are 'available' and sort by their level proximity
+  // If reports had a 'city' field, we would match jurisdiction=city
+
+  const workers = await Worker.find({
+    status: 'available',
+    // In a real scenario, add: jurisdiction: report.city
+  })
+    .populate('userId', 'name email phone avatar')
+    .limit(10);
+
+  // Simple sorting: Prefer Local > State > National
+  // This is a basic implementation.
+  const sortedWorkers = workers.sort((a, b) => {
+    const levels = { local: 1, state: 2, national: 3 };
+    return (levels[a.level as keyof typeof levels] || 1) - (levels[b.level as keyof typeof levels] || 1);
+  });
+
+  res.json({
+    success: true,
+    data: { workers: sortedWorkers },
+  });
+};

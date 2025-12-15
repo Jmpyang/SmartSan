@@ -37,6 +37,8 @@ export interface IReport extends Document {
 export interface IWorker extends Document {
   userId: string;
   zone: string;
+  level: 'local' | 'state' | 'national';
+  jurisdiction: string;
   activeReports: string[];
   completedReports: number;
   rating: number;
